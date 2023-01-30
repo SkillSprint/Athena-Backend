@@ -38,3 +38,7 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
+
+## LICENSE
+
+This project is licensed by [GNU AGPL v3.0](LICENSE).
