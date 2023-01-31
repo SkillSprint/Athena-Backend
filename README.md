@@ -24,6 +24,22 @@ $ npm run dev:update
 $ npm run dev:update-d
 ```
 
+## Updating the Database Schema
+
+When you make any changes to the [Prisma Schema](./src/database/schema.prisma), you must update the database to reflect the changes.
+
+Before running the following commands, make sure the containers are not running. You can make sure that is the case by running `docker-compose down`.
+
+```bash
+# Only start the postgres container
+$ docker-compose start postgres
+
+# Run the prisma migrate command so that it updates the database
+# Note: You should run this command in the terminal on your local machine, not in the docker instance
+$ npx prisma migrate dev --name <name for the migration>
+# E.g. npx prisma migrate dev --name added_email_to_users
+```
+
 ## Test
 
 ### Note: Have yet to check if the following works with Docker

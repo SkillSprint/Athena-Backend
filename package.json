@@ -20,9 +20,9 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prisma:generate": "npx prisma generate",
     "dev": "docker-compose up",
-    "dev:d": "docker-compose up",
+    "dev:d": "docker-compose up -d",
     "dev:update": "docker-compose up -V --build",
-    "dev:update-d": "docker-compose up -V --build"
+    "dev:update-d": "docker-compose up -V --build -d"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
