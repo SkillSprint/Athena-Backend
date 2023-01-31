@@ -22,7 +22,10 @@
     "dev": "docker-compose up",
     "dev:d": "docker-compose up -d",
     "dev:update": "docker-compose up -V --build",
-    "dev:update-d": "docker-compose up -V --build -d"
+    "dev:update-d": "docker-compose up -V --build -d",
+    "prepare": "husky install",
+    "check-format": "prettier --check .",
+    "compile": "tsc"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
@@ -45,6 +48,7 @@
     "eslint": "^8.0.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "husky": "^8.0.3",
     "jest": "29.3.1",
     "prettier": "^2.3.2",
     "prisma": "^4.9.0",
