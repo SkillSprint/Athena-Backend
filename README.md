@@ -17,11 +17,24 @@ $ npm run dev
 # Same as above but detached
 $ npm run dev:d
 
-# Start Docker after updating any dependencies or the Dockerfile
+# Start Docker after updating any dependencies
 $ npm run dev:update
 
 # Same as above but detached
 $ npm run dev:update-d
+
+# Start Docker after updating the Dockerfile or docker-compose.yaml
+$ npm run dev:build
+
+# Same as above but detached
+$ npm run dev:build-d
+
+# Start Docker after updating any dependencies and the Dockerfile or docker-compose.yaml
+$ npm run dev:update-b
+
+# Same as above but detached
+$ npm run dev:update-b-d
+
 ```
 
 ## Updating the Database Schema
