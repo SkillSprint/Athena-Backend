@@ -1,7 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { Prisma } from "@prisma/client";
 import { UsersService } from "src/users/users.service";
+import { RegisterUserDto } from "./dto/register_user.dto";
+import { compareSync, hash } from "bcrypt";
+import {
+  BadRequestException,
+  UnauthorizedException,
+} from "@nestjs/common/exceptions";
+import { LoginUserDto } from "./dto/login_user.dto";
 
 @Injectable()
 export class AuthService {
@@ -11,29 +17,63 @@ export class AuthService {
   ) {}
 
   // TODO: Use bcrypt, just doing plaintext to get general idea for now.
-  async validateUsers(email: string, pass: string) {
-    const user = await this.usersService.findUser({ email: email });
-    if (user && user.password === pass) {
+  async validateUsers(userDto: LoginUserDto) {
+    const user = await this.usersService.findUser(userDto);
+    if (user && user.password === userDto.password) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;
       return result;
+    } else if (!user) {
+      throw new BadRequestException("Login Authentication Failed.", {
+        cause: new Error(),
+        description: "Username not found.",
+      });
     }
-    return null;
-    // else if (!user) {
-    //   throw new BadRequestException("Login Authentication Failed.", {
-    //     cause: new Error(),
-    //     description: "Username not found.",
-    //   });
-    // }
-    // throw new BadRequestException("Login Authentication Failed", {
-    //   cause: new Error(),
-    //   description: "Passwords did not match.",
-    // });
+    throw new BadRequestException("Login Authentication Failed", {
+      cause: new Error(),
+      description: "Passwords did not match.",
+    });
   }
 
-  async login(payload: Prisma.usersWhereUniqueInput) {
+  async login(payload: LoginUserDto) {
+    const user = await this.usersService.findUser({ email: payload.email });
+    if (!user) {
+      throw new UnauthorizedException({
+        message: "Invalid credentials",
+        error: "Unable to find user.",
+        statusCode: 401,
+      });
+    }
+    const hashedPassword = await compareSync(payload.password, user.password);
+    if (!hashedPassword) {
+      throw new UnauthorizedException({
+        message: "Invalid credentials",
+        error: "Invalid password. Please try again.",
+        statusCode: 401,
+      });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...result } = user;
+
     return {
-      access_token: this.jwtService.sign(payload),
+      user: result,
+      access_token: this.jwtService.sign({ sub: user.id, ...user }),
     };
+  }
+
+  async register(payload: RegisterUserDto) {
+    const { password } = payload;
+
+    // Hash the password using bcrypt
+    const hashedPassword = await hash(password, 10);
+
+    // Replace the plain text password with the hashed password
+    payload.password = hashedPassword;
+
+    // Save the user in the database
+    await this.usersService.createUser(payload);
+
+    return { message: "User succesfully created!" };
   }
 }

@@ -7,6 +7,7 @@ import { PrismaService } from "./prisma.service";
 import { UsersModule } from "./users/users.module";
 import { UsersService } from "./users/users.service";
 import { APP_GUARD } from "@nestjs/core";
+import { LocalAuthGuard } from "./auth/local-auth.guard";
 
 @Module({
   imports: [AuthModule, UsersModule],
@@ -18,6 +19,10 @@ import { APP_GUARD } from "@nestjs/core";
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: LocalAuthGuard,
     },
   ],
 })

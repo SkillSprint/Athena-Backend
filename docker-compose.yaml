@@ -7,8 +7,8 @@ services:
       target: development
     depends_on:
       - postgres
-    volumes:
-      - .:/usr/src/app
+    # volumes:
+    #   - .:/usr/src/app
     env_file:
       - .env
     environment:
