@@ -23,13 +23,14 @@
     "dev:d": "docker-compose up -d",
     "dev:update": "docker-compose up -V",
     "dev:update-d": "docker-compose up -V -d",
-    "dev:build": "docker-compose up --build --no-cache",
-    "dev:build-d": "docker-compose up --build -d --no-cache",
-    "dev:update-b": "docker-compose up -V --build --no-cache",
-    "dev:update-b-d": "docker-compose up -V --build -d --no-cache",
+    "dev:build": "docker-compose build --no-cache",
+    "dev:build-d": "docker-compose build --no-cache -d",
+    "dev:update-b": "docker-compose build --no-cache && docker-compose up -V",
+    "dev:update-b-d": "docker-compose build --no-cache && docker-compose up -V -d",
     "prepare": "husky install",
     "check-format": "prettier --check .",
-    "compile": "tsc"
+    "compile": "tsc",
+    "prod": "docker build -t nest-cloud-run . && docker run -p80:3000 nest-cloud-run"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
@@ -40,9 +41,10 @@
     "@nestjs/platform-express": "^9.0.0",
     "@prisma/client": "^4.9.0",
     "bcrypt": "^5.1.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.13.2",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
-    "passport-local": "^1.0.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0"
   },

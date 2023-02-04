@@ -3,10 +3,7 @@ import { JwtService } from "@nestjs/jwt";
 import { UsersService } from "src/users/users.service";
 import { RegisterUserDto } from "./dto/register_user.dto";
 import { compareSync, hash } from "bcrypt";
-import {
-  BadRequestException,
-  UnauthorizedException,
-} from "@nestjs/common/exceptions";
+import { BadRequestException } from "@nestjs/common/exceptions";
 import { LoginUserDto } from "./dto/login_user.dto";
 
 @Injectable()
@@ -15,38 +12,20 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
-
-  // TODO: Use bcrypt, just doing plaintext to get general idea for now.
-  async validateUsers(userDto: LoginUserDto) {
-    const user = await this.usersService.findUser(userDto);
-    if (user && user.password === userDto.password) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...result } = user;
-      return result;
-    } else if (!user) {
-      throw new BadRequestException("Login Authentication Failed.", {
-        cause: new Error(),
-        description: "Username not found.",
-      });
-    }
-    throw new BadRequestException("Login Authentication Failed", {
-      cause: new Error(),
-      description: "Passwords did not match.",
-    });
-  }
-
   async login(payload: LoginUserDto) {
-    const user = await this.usersService.findUser({ email: payload.email });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: pass, ...input } = payload;
+    const user = await this.usersService.findUser(input);
     if (!user) {
-      throw new UnauthorizedException({
+      throw new BadRequestException({
         message: "Invalid credentials",
         error: "Unable to find user.",
-        statusCode: 401,
+        statusCode: 400,
       });
     }
     const hashedPassword = await compareSync(payload.password, user.password);
     if (!hashedPassword) {
-      throw new UnauthorizedException({
+      throw new BadRequestException({
         message: "Invalid credentials",
         error: "Invalid password. Please try again.",
         statusCode: 401,
@@ -58,7 +37,7 @@ export class AuthService {
 
     return {
       user: result,
-      access_token: this.jwtService.sign({ sub: user.id, ...user }),
+      access_token: this.jwtService.sign(result),
     };
   }
 

@@ -21,6 +21,7 @@ export class AuthController {
     return this.authService.register(userDto);
   }
 
+  // Test route to see if authenticated requests work
   @Get("profile")
   getProfile(@Request() req) {
     return req.user;
