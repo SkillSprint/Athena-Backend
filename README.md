@@ -1,6 +1,6 @@
-# Reperio Backend
+# Athena Backend
 
-This is the codebase for Reperio's backend. This is built with [NestJS](https://docs.nestjs.com/), [Prisma](https://www.prisma.io/docs), and [PostgreSQL](https://www.postgresql.org/docs/).
+This is the codebase for Athena's backend. This is built with [NestJS](https://docs.nestjs.com/), [Prisma](https://www.prisma.io/docs), and [PostgreSQL](https://www.postgresql.org/docs/).
 
 ## Installation
 
