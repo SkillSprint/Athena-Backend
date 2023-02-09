@@ -1,18 +1,94 @@
+import { JwtModule, JwtService } from "@nestjs/jwt";
 import { Test, TestingModule } from "@nestjs/testing";
+import { Prisma } from "@prisma/client";
+import { UsersService } from "src/users/users.service";
 import { AuthService } from "./auth.service";
+import { hash } from "bcrypt";
+import { LoginUserDto } from "./dto/login_user.dto";
 
 describe("AuthService", () => {
   let service: AuthService;
 
+  const mockUserService = {
+    findUser: jest
+      .fn()
+      .mockImplementation(async (where: Prisma.usersWhereUniqueInput) => {
+        if (
+          where.email === "test@email.com" ||
+          where.id === 1 ||
+          where.identiKey === "test1234"
+        ) {
+          const hashedPassword = await hash("test", 10);
+          return Promise.resolve({
+            id: 1,
+            email: "test@email.com",
+            identiKey: "test1234",
+            first_name: "test",
+            last_name: "account",
+            created_at: expect.any(Date),
+            password: hashedPassword,
+            isStaff: false,
+          });
+        }
+      }),
+  };
+
+  const mockJwtService = {
+    sign: jest.fn().mockImplementation(() => expect.any(String)),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AuthService],
-    }).compile();
+      imports: [
+        JwtModule.register({
+          secret: process.env.JWT_ACCESS_SECRET,
+          signOptions: { expiresIn: "7d" },
+        }),
+      ],
+      providers: [AuthService, UsersService, JwtService],
+    })
+      .overrideProvider(UsersService)
+      .useValue(mockUserService)
+      .overrideProvider(JwtService)
+      .useValue(mockJwtService)
+      .compile();
 
     service = module.get<AuthService>(AuthService);
   });
 
   it("should be defined", () => {
     expect(service).toBeDefined();
+  });
+
+  it("should verify credentials for correct login", async () => {
+    const dto: LoginUserDto = { email: "test@email.com", password: "test" };
+    expect(await service.login(dto)).toEqual({
+      user: {
+        id: 1,
+        email: dto.email,
+        identiKey: "test1234",
+        first_name: "test",
+        last_name: "account",
+        created_at: expect.any(Date),
+        isStaff: false,
+      },
+      access_token: expect.any(String),
+    });
+  });
+
+  it("should verify credentials for correct login", async () => {
+    const dto: LoginUserDto = { email: "test@email.com", password: "test" };
+    expect(await service.login(dto)).toEqual({
+      user: {
+        id: 1,
+        email: dto.email,
+        identiKey: "test1234",
+        first_name: "test",
+        last_name: "account",
+        created_at: expect.any(Date),
+        isStaff: false,
+      },
+      access_token: expect.any(String),
+    });
   });
 });
