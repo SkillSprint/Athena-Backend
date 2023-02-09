@@ -1,6 +1,6 @@
 import { JwtModule, JwtService } from "@nestjs/jwt";
 import { Test, TestingModule } from "@nestjs/testing";
-import { Prisma } from "@prisma/client";
+import { Prisma, users } from "@prisma/client";
 import { UsersService } from "src/users/users.service";
 import { AuthService } from "./auth.service";
 import { hash } from "bcrypt";
@@ -19,7 +19,7 @@ describe("AuthService", () => {
           where.identiKey === "test1234"
         ) {
           const hashedPassword = await hash("test", 10);
-          return Promise.resolve({
+          return <users>{
             id: 1,
             email: "test@email.com",
             identiKey: "test1234",
@@ -28,8 +28,23 @@ describe("AuthService", () => {
             created_at: expect.any(Date),
             password: hashedPassword,
             isStaff: false,
-          });
+          };
         }
+      }),
+    createUser: jest
+      .fn()
+      .mockImplementation(async (where: Prisma.usersCreateInput) => {
+        const hashedPassword = await hash(where.password, 10);
+        return <users>{
+          id: 1,
+          email: "test@email.com",
+          identiKey: "test1234",
+          first_name: "test",
+          last_name: "account",
+          created_at: expect.any(Date),
+          password: hashedPassword,
+          isStaff: false,
+        };
       }),
   };
 
@@ -60,8 +75,8 @@ describe("AuthService", () => {
     expect(service).toBeDefined();
   });
 
+  const dto: LoginUserDto = { email: "test@email.com", password: "test" };
   it("should verify credentials for correct login", async () => {
-    const dto: LoginUserDto = { email: "test@email.com", password: "test" };
     expect(await service.login(dto)).toEqual({
       user: {
         id: 1,
@@ -77,7 +92,6 @@ describe("AuthService", () => {
   });
 
   it("should verify credentials for correct login", async () => {
-    const dto: LoginUserDto = { email: "test@email.com", password: "test" };
     expect(await service.login(dto)).toEqual({
       user: {
         id: 1,

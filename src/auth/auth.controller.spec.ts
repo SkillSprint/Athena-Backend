@@ -27,17 +27,21 @@ describe("AuthController", () => {
           access_token: expect.any(String),
         });
       } else if (dto.email !== "test@email.com") {
-        throw new BadRequestException({
-          message: "Invalid credentials",
-          error: "Unable to find user.",
-          statusCode: 400,
-        });
+        return Promise.resolve(
+          new BadRequestException({
+            message: "Invalid credentials",
+            error: "Unable to find user.",
+            statusCode: 400,
+          }),
+        );
       } else {
-        throw new BadRequestException({
-          message: "Invalid credentials",
-          error: "Invalid password. Please try again.",
-          statusCode: 401,
-        });
+        return Promise.resolve(
+          new BadRequestException({
+            message: "Invalid credentials",
+            error: "Invalid password. Please try again.",
+            statusCode: 401,
+          }),
+        );
       }
     }),
     register: jest.fn((dto: RegisterUserDto) => {
@@ -46,11 +50,13 @@ describe("AuthController", () => {
           message: "Successfully registered user!",
         });
       } else {
-        throw new InternalServerErrorException({
-          message: "Internal server",
-          error: "Unable to register user.",
-          statusCode: 500,
-        });
+        return Promise.resolve(
+          new InternalServerErrorException({
+            message: "Internal server",
+            error: "Unable to register user.",
+            statusCode: 500,
+          }),
+        );
       }
     }),
   };
@@ -87,17 +93,37 @@ describe("AuthController", () => {
     });
   });
 
+  const dto: RegisterUserDto = {
+    email: "test@email.com",
+    first_name: "test",
+    identiKey: "test1234",
+    last_name: "account",
+    isStaff: false,
+    password: "test",
+  };
+
+  const incorrectDto: RegisterUserDto = {
+    email: "tes@email.com",
+    first_name: "test",
+    identiKey: "test1234",
+    last_name: "account",
+    isStaff: false,
+    password: "tes",
+  };
+
   it("should send a confirmation message on successful register", async () => {
-    const dto: RegisterUserDto = {
-      email: "test@email.com",
-      first_name: "test",
-      identiKey: "test1234",
-      last_name: "account",
-      isStaff: false,
-      password: "test",
-    };
     expect(await controller.register(dto)).toEqual({
       message: "Successfully registered user!",
     });
+  });
+
+  it("should return an error with wrong email", async () => {
+    expect(await controller.login(incorrectDto)).toEqual(
+      new BadRequestException({
+        message: "Invalid credentials",
+        error: "Unable to find user.",
+        statusCode: 400,
+      }),
+    );
   });
 });
