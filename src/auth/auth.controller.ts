@@ -10,13 +10,13 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Public()
-  @Post("/login")
+  @Post("login")
   async login(@Body() loginDto: LoginUserDto) {
     return this.authService.login(loginDto);
   }
 
   @Public()
-  @Post("/register")
+  @Post("register")
   async register(@Body() userDto: RegisterUserDto) {
     return this.authService.register(userDto);
   }
@@ -24,6 +24,15 @@ export class AuthController {
   // Test route to see if authenticated requests work
   @Get("profile")
   getProfile(@Request() req) {
-    return req.user;
+    const { exp, iat, ...user } = req.user;
+    return {
+      jwt: {
+        exp: exp,
+        iat: iat,
+      },
+      user: {
+        ...user,
+      },
+    };
   }
 }

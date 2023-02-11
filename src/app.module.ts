@@ -14,8 +14,9 @@ import { APP_GUARD } from "@nestjs/core";
     PrismaService,
     {
       provide: APP_GUARD,
-      useClass: JwtAuthGuard,
+      useExisting: JwtAuthGuard,
     },
+    JwtAuthGuard,
   ],
 })
 export class AppModule {}

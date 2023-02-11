@@ -6,7 +6,6 @@ import { AuthService } from "./auth.service";
 import { hash } from "bcrypt";
 import { LoginUserDto } from "./dto/login_user.dto";
 import { RegisterUserDto } from "./dto/register_user.dto";
-import { PrismaClientValidationError } from "@prisma/client/runtime";
 
 describe("AuthService", () => {
   let service: AuthService;
@@ -28,7 +27,7 @@ describe("AuthService", () => {
             isStaff: false,
           };
         } else {
-          throw new PrismaClientValidationError();
+          return null;
         }
       }),
     createUser: jest

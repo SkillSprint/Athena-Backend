@@ -3,7 +3,10 @@ import { JwtService } from "@nestjs/jwt";
 import { UsersService } from "src/users/users.service";
 import { RegisterUserDto } from "./dto/register_user.dto";
 import { compareSync, hash } from "bcrypt";
-import { BadRequestException } from "@nestjs/common/exceptions";
+import {
+  BadRequestException,
+  InternalServerErrorException,
+} from "@nestjs/common/exceptions";
 import { LoginUserDto } from "./dto/login_user.dto";
 
 @Injectable()
@@ -18,16 +21,16 @@ export class AuthService {
     const user = await this.usersService.findUser(input);
     if (!user) {
       throw new BadRequestException({
-        message: "Invalid credentials",
-        error: "Unable to find user.",
+        error: "Invalid credentials.",
+        message: "Unable to find user.",
         statusCode: 400,
       });
     }
     const hashedPassword = await compareSync(payload.password, user.password);
     if (!hashedPassword) {
       throw new BadRequestException({
-        message: "Invalid credentials",
-        error: "Invalid password. Please try again.",
+        error: "Invalid credentials.",
+        message: "Invalid password. Please try again.",
         statusCode: 401,
       });
     }
@@ -51,7 +54,23 @@ export class AuthService {
     payload.password = hashedPassword;
 
     // Save the user in the database
-    await this.usersService.createUser(payload);
+    try {
+      await this.usersService.createUser(payload);
+    } catch (error) {
+      console.error(error);
+      if (error.code === "P2002") {
+        throw new BadRequestException({
+          error: "Unique Constraints Failed.",
+          message: "The provided email already exists.",
+          statusCode: 401,
+        });
+      }
+      throw new InternalServerErrorException({
+        error: "Internal Server Error.",
+        message: "There was an error submitting data.",
+        statusCode: 500,
+      });
+    }
 
     return { message: "User succesfully created!" };
   }
