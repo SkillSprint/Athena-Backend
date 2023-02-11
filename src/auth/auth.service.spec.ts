@@ -5,6 +5,8 @@ import { UsersService } from "src/users/users.service";
 import { AuthService } from "./auth.service";
 import { hash } from "bcrypt";
 import { LoginUserDto } from "./dto/login_user.dto";
+import { RegisterUserDto } from "./dto/register_user.dto";
+import { PrismaClientValidationError } from "@prisma/client/runtime";
 
 describe("AuthService", () => {
   let service: AuthService;
@@ -13,11 +15,7 @@ describe("AuthService", () => {
     findUser: jest
       .fn()
       .mockImplementation(async (where: Prisma.usersWhereUniqueInput) => {
-        if (
-          where.email === "test@email.com" ||
-          where.id === 1 ||
-          where.identiKey === "test1234"
-        ) {
+        if (where.email === "test@email.com") {
           const hashedPassword = await hash("test", 10);
           return <users>{
             id: 1,
@@ -29,6 +27,8 @@ describe("AuthService", () => {
             password: hashedPassword,
             isStaff: false,
           };
+        } else {
+          throw new PrismaClientValidationError();
         }
       }),
     createUser: jest
@@ -103,6 +103,20 @@ describe("AuthService", () => {
         isStaff: false,
       },
       access_token: expect.any(String),
+    });
+  });
+
+  it("should successfully register an account", async () => {
+    const dto: RegisterUserDto = {
+      email: "test@email.com",
+      identiKey: "test1234",
+      first_name: "test",
+      last_name: "account",
+      password: "password",
+      isStaff: false,
+    };
+    expect(await service.register(dto)).toEqual({
+      message: "User succesfully created!",
     });
   });
 });
