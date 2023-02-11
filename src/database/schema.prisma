@@ -1,6 +1,6 @@
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl"]
+  binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x", "linux-musl"]
 }
 
 datasource db {
@@ -10,76 +10,76 @@ datasource db {
 
 model courses {
   id               Int                @id @default(autoincrement())
-  name             String?
-  category         String?
+  name             String
+  category         String
   courses_to_posts courses_to_posts[]
 }
 
 model courses_to_posts {
-  id        Int      @id @default(autoincrement())
-  course_id Int?
-  post_id   Int?
-  courses   courses? @relation(fields: [course_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  posts     posts?   @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id        Int     @id @default(autoincrement())
+  course_id Int
+  post_id   Int
+  courses   courses @relation(fields: [course_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  posts     posts   @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model mesages_to_threads {
-  id         Int       @id @default(autoincrement())
-  message_id Int?
-  thread_id  Int?
-  messages   messages? @relation(fields: [message_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  threads    threads?  @relation(fields: [thread_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id         Int      @id @default(autoincrement())
+  message_id Int
+  thread_id  Int
+  messages   messages @relation(fields: [message_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  threads    threads  @relation(fields: [thread_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model messages {
   id                 Int                  @id @default(autoincrement())
-  content            String?
-  created_at         DateTime?            @default(now()) @db.Timestamptz(6)
-  last_modified_at   DateTime?            @default(now()) @db.Timestamptz(6)
-  flags              flag_types?
+  content            String
+  created_at         DateTime             @default(now()) @db.Timestamptz(6)
+  last_modified_at   DateTime             @default(now()) @db.Timestamptz(6)
+  flags              flag_types
   mesages_to_threads mesages_to_threads[]
   messages_to_posts  messages_to_posts[]
   messages_to_users  messages_to_users[]
 }
 
 model messages_to_posts {
-  id         Int       @id @default(autoincrement())
-  message_id Int?
-  post_id    Int?
-  messages   messages? @relation(fields: [message_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  posts      posts?    @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id         Int      @id @default(autoincrement())
+  message_id Int
+  post_id    Int
+  messages   messages @relation(fields: [message_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  posts      posts    @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model messages_to_users {
-  id         Int       @id @default(autoincrement())
-  message_id Int?
-  user_id    Int?
-  messages   messages? @relation(fields: [message_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users      users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id         Int      @id @default(autoincrement())
+  message_id Int
+  user_id    Int
+  messages   messages @relation(fields: [message_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model nofication_settings {
   id                             Int                              @id @default(autoincrement())
-  email_notifications            Boolean?
-  notification_type              notification_types?
+  email_notifications            Boolean
+  notification_type              notification_types
   users_to_notification_settings users_to_notification_settings[]
 }
 
 model notifications {
   id                     Int                      @id @default(autoincrement())
-  title                  String?
-  content                String?
-  email                  String?
+  title                  String
+  content                String
+  email                  String
   users_to_notifications users_to_notifications[]
 }
 
 model posts {
   id                Int                 @id @default(autoincrement())
-  title             String?
-  content           String?
-  created_at        DateTime?           @default(now()) @db.Timestamptz(6)
-  last_modified_at  DateTime?           @default(now()) @db.Timestamptz(6)
-  visibile          Boolean?
+  title             String
+  content           String
+  created_at        DateTime            @default(now()) @db.Timestamptz(6)
+  last_modified_at  DateTime            @default(now()) @db.Timestamptz(6)
+  visibile          Boolean
   courses_to_posts  courses_to_posts[]
   messages_to_posts messages_to_posts[]
   users_to_posts    users_to_posts[]
@@ -87,35 +87,36 @@ model posts {
 
 model thread_messages {
   id                         Int                          @id @default(autoincrement())
-  content                    String?
-  created_at                 DateTime?                    @default(now()) @db.Timestamptz(6)
-  last_modified_at           DateTime?                    @default(now()) @db.Timestamptz(6)
+  content                    String
+  created_at                 DateTime                     @default(now()) @db.Timestamptz(6)
+  last_modified_at           DateTime                     @default(now()) @db.Timestamptz(6)
   threads_to_thread_messages threads_to_thread_messages[]
 }
 
 model threads {
   id                         Int                          @id @default(autoincrement())
-  title                      String?                      @default("")
+  title                      String                       @default("")
   mesages_to_threads         mesages_to_threads[]
   threads_to_thread_messages threads_to_thread_messages[]
 }
 
 model threads_to_thread_messages {
-  id                Int              @id @default(autoincrement())
-  thread_id         Int?
-  thread_message_id Int?
-  threads           threads?         @relation(fields: [thread_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  thread_messages   thread_messages? @relation(fields: [thread_message_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                Int             @id @default(autoincrement())
+  thread_id         Int
+  thread_message_id Int
+  threads           threads         @relation(fields: [thread_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  thread_messages   thread_messages @relation(fields: [thread_message_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model users {
   id                             Int                              @id @default(autoincrement())
-  email                          String?                          @unique
-  first_name                     String?
-  last_name                      String?
-  created_at                     DateTime?                        @default(now()) @db.Timestamptz(6)
-  password                       String?
-  isStaff                        Boolean?
+  email                          String                           @unique
+  identiKey                      String                           @unique
+  first_name                     String
+  last_name                      String
+  created_at                     DateTime                         @default(now()) @db.Timestamptz(6)
+  password                       String
+  isStaff                        Boolean
   messages_to_users              messages_to_users[]
   users_to_notification_settings users_to_notification_settings[]
   users_to_notifications         users_to_notifications[]
@@ -123,27 +124,27 @@ model users {
 }
 
 model users_to_notification_settings {
-  id                       Int                  @id @default(autoincrement())
-  user_id                  Int?
-  notification_settings_id Int?
-  nofication_settings      nofication_settings? @relation(fields: [notification_settings_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users                    users?               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                       Int                 @id @default(autoincrement())
+  user_id                  Int
+  notification_settings_id Int
+  nofication_settings      nofication_settings @relation(fields: [notification_settings_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users                    users               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model users_to_notifications {
-  id              Int            @id @default(autoincrement())
-  user_id         Int?
-  notification_id Int?
-  notifications   notifications? @relation(fields: [notification_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users           users?         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id              Int           @id @default(autoincrement())
+  user_id         Int
+  notification_id Int
+  notifications   notifications @relation(fields: [notification_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users           users         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model users_to_posts {
-  id      Int    @id @default(autoincrement())
-  user_id Int?
-  post_id Int?
-  posts   posts? @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users   users? @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id      Int   @id @default(autoincrement())
+  user_id Int
+  post_id Int
+  posts   posts @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users   users @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum flag_types {

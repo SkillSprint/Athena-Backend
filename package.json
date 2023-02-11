@@ -21,17 +21,30 @@
     "prisma:generate": "npx prisma generate",
     "dev": "docker-compose up",
     "dev:d": "docker-compose up -d",
-    "dev:update": "docker-compose up -V --build",
-    "dev:update-d": "docker-compose up -V --build -d",
+    "dev:update": "docker-compose up -V",
+    "dev:update-d": "docker-compose up -V -d",
+    "dev:build": "docker-compose build --no-cache",
+    "dev:build-d": "docker-compose build --no-cache -d",
+    "dev:update-b": "docker-compose build --no-cache && docker-compose up -V",
+    "dev:update-b-d": "docker-compose build --no-cache && docker-compose up -V -d",
     "prepare": "husky install",
     "check-format": "prettier --check .",
-    "compile": "tsc"
+    "compile": "tsc",
+    "prod": "docker build -t nest-cloud-run . && docker run -p80:3000 nest-cloud-run"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
     "@nestjs/core": "^9.0.0",
+    "@nestjs/jwt": "^10.0.1",
+    "@nestjs/mapped-types": "*",
+    "@nestjs/passport": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
     "@prisma/client": "^4.9.0",
+    "bcrypt": "^5.1.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.13.2",
+    "passport": "^0.6.0",
+    "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0"
   },
@@ -42,6 +55,8 @@
     "@types/express": "^4.17.13",
     "@types/jest": "29.2.4",
     "@types/node": "18.11.18",
+    "@types/passport-jwt": "^3.0.8",
+    "@types/passport-local": "^1.0.35",
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
@@ -50,6 +65,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "husky": "^8.0.3",
     "jest": "29.3.1",
+    "jest-mock-extended": "^3.0.1",
     "prettier": "^2.3.2",
     "prisma": "^4.9.0",
     "source-map-support": "^0.5.20",
@@ -70,6 +86,9 @@
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1"
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"

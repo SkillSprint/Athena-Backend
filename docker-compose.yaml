@@ -6,15 +6,17 @@ services:
       # Only will build development stage from our dockerfile
       target: development
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     volumes:
       - .:/usr/src/app
+      - /usr/src/app/node_modules
     env_file:
       - .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
     # Run a command against the development stage of the image
-    command: npm run start:dev
+    command: sh -c "npx prisma db push --skip-generate && npm run start:dev"
     ports:
       - 3000:3000
   postgres:
